@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "camcal"
 version = "0.1.0"
-description = "Small helper package to perform camera orientation caliobration and automated processing of images taken"
+description = "Small helper package to perform camera orientation calibration and automated processing of images taken"
 authors = ["nfb2021 <nicolas.bader@geo.tuwien.ac.at>"]
 readme = "README.md"
 

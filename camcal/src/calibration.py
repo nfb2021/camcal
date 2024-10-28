@@ -69,7 +69,9 @@ class ImagePocessor(ImageReader):
 
 #%%
 if __name__ == "__main__":
-    pth = "/home/nbader/shares/climers/Projects/GNSS_Vegetation_Study/07_data/01_Rosalia/02_canopy/02_hem_img/03_camera_calib/.phoenix/VIS/2024-10-24/11:48:44_VIS.jpg"
+    pth = Path(
+        "/home/nbader/shares/climers/Projects/GNSS_Vegetation_Study/07_data/01_Rosalia/02_canopy/02_hem_img/03_camera_calib/.phoenix/VIS/2024-10-24/11:48:44_VIS.jpg"
+    )
 
     image_reader = ImagePocessor(path=pth)
     img = image_reader.read_image()
