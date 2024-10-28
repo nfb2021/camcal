@@ -1,13 +1,13 @@
 {
     "python.formatting.provider": "black",
     "editor.formatOnSave": true, // Auto-format code on save
-    "python.formatting.blackArgs": ["--line-length", "88"]
+    "python.formatting.blackArgs": ["--line-length", "88"],
     "python.linting.mypyEnabled": true,
     "python.linting.enabled": true,
-    "python.linting.mypyArgs": ["--strict"]
+    "python.linting.mypyArgs": ["--strict"],
     "python.linting.flake8Enabled": true,
     "python.sortImports.path": "isort",
     "editor.codeActionsOnSave": {
-    	"source.organizeImports": true,
+        "source.organizeImports": "always"
     }
 }
