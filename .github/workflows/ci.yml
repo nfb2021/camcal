@@ -1,0 +1,55 @@
+name: Python CI and Deploy
+
+on:
+    push:
+        branches:
+            - master
+    pull_request:
+        branches:
+            - master
+    # Trigger deployment when a new tag (release) is pushed
+    release:
+        types: [created]
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                python-version: [3.13]
+
+        steps:
+            - uses: actions/checkout@v2
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v2
+              with:
+                  python-version: ${{ matrix.python-version }}
+
+            - name: Install Poetry
+              run: pip install poetry
+
+            - name: Install dependencies
+              run: poetry install
+
+            - name: Run tests with pytest
+              run: poetry run pytest
+
+    deploy:
+        if: github.event_name == 'release'
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - name: Set up Python
+              uses: actions/setup-python@v2
+              with:
+                  python-version: 3.x
+
+            - name: Install Poetry
+              run: pip install poetry
+
+            - name: Build and publish to PyPI
+              env:
+                  PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+              run: |
+                  poetry build
+                  poetry publish --username __token__ --password $PYPI_TOKEN
