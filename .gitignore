@@ -23,5 +23,4 @@
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode
 
 .phoenix/*
-.github/*
 */*.pytest_cache
