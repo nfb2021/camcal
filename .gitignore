@@ -23,4 +23,8 @@
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode
 
 .phoenix/*
+phoenix*
 */*.pytest_cache
+*/*.log
+.env
+camcal/src/globals.py
