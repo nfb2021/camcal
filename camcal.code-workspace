@@ -1,8 +1,33 @@
 {
-	"folders": [
-		{
-			"path": ".."
-		}
-	],
-	"settings": {}
+    "folders": [
+        {
+            "path": ".."
+        }
+    ],
+    "settings": {
+        "python.pythonPath": ".venv/bin/python", // Ensure virtual environment is used
+        "python.linting.enabled": true, // Enable linting
+        "python.linting.pylintEnabled": true, // Use Pylint
+        "python.linting.flake8Enabled": true, // Use Flake8
+        "python.formatting.provider": "black", // Use Black for auto-formatting
+        "python.analysis.typeCheckingMode": "strict", // Use strict type checking with Mypy
+        "editor.formatOnSave": true, // Auto-format on save
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true, // Organize imports on save
+            "source.fixAll": true // Fix all issues on save
+        },
+        "files.exclude": {
+            "**/__pycache__/": true, // Hide __pycache__ folders
+            "**/*.pyc": true, // Hide Python bytecode files
+            ".venv": true // Hide virtual environment folder
+        },
+        "python.testing.pytestEnabled": true, // Enable Pytest integration
+        "python.testing.unittestEnabled": false,
+        "python.testing.nosetestsEnabled": false,
+        "python.testing.autoTestDiscoverOnSaveEnabled": true, // Auto-discover tests
+        "python.linting.mypyEnabled": true, // Enable Mypy for type checking
+        "python.envFile": "${workspaceFolder}/.env", // Load environment variables
+        "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python", // Ensure correct interpreter
+        "python.languageServer": "Pylance" // Use Pylance for enhanced performance
+    }
 }

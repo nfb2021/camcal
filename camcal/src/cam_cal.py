@@ -1,6 +1,7 @@
 from pathlib import Path
-from pydantic.dataclasses import dataclass
+
 import polars as pl
+from pydantic.dataclasses import dataclass
 
 
 @dataclass

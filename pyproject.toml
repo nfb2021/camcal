@@ -27,7 +27,19 @@ exifread = "^3.0.0"
 xarray-datatree = "^0.0.15"
 zarr = "^2.18.3"
 pint = "^0.24.4"
-
+notebook = "^7.2.2"
+ipympl = "^0.9.4"
+ipywidgets = "^8.1.5"
+pylint = "^3.3.1"
+pylint-pydantic = "^0.3.2"
+flake8 = "^7.1.1"
+flake8-pydantic = "^0.3.1"
+mypy = "^1.13.0"
+astral = "^3.2"
+pytz = "^2024.2"
+types-pytz = "^2024.2.0.20241003"
+types-exifread = "^3.0.0.20240806"
+types-tqdm = "^4.67.0.20241119"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
@@ -36,7 +48,37 @@ mypy = "^1.13.0"
 flake8 = "^7.1.1"
 isort = "^5.13.2"
 coverage = "^7.6.4"
+pre-commit = "^3.5.0"  # Added pre-commit hooks for consistent code formatting
+pytest-cov = "^4.1.0"  # For pytest with coverage integration
 
+[tool.mypy]
+plugins = ["pydantic.mypy"]  # Ensures pydantic-specific type checking
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.pylint]
+load-plugins = ["pylint_pydantic"]
+
+[tool.black]
+line-length = 88
+target-version = ['py310', 'py311', 'py312', 'py313']
+
+[tool.isort]
+profile = "black"
+
+[tool.coverage.run]
+branch = true
+source = ["camcal"]
+
+[tool.pre-commit]
+repos = [
+    {repo = "https://github.com/pre-commit/pre-commit-hooks", rev = "v4.4.0", hooks = [{id = "end-of-file-fixer"}, {id = "trailing-whitespace"}]},
+    {repo = "https://github.com/psf/black", rev = "23.9.1", hooks = [{id = "black"}]},
+    {repo = "https://github.com/pre-commit/mirrors-isort", rev = "v5.12.0", hooks = [{id = "isort"}]},
+    {repo = "https://github.com/pre-commit/mirrors-flake8", rev = "v7.1.1", hooks = [{id = "flake8"}]}
+]
 
 [build-system]
 requires = ["poetry-core"]
