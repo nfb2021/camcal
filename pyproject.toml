@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Small helper package to perform camera orientation calibration and automated processing of images taken"
 authors = ["nfb2021 <nicolas.bader@geo.tuwien.ac.at>"]
 readme = "README.md"
+packages = [{include = "camcal", from = "camcal/src"}]
 
 [tool.poetry.dependencies]
 python = "^3.13"

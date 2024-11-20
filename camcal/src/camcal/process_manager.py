@@ -1,7 +1,6 @@
-from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Generator, List
+from typing import Dict, Generator
 
 import numpy as np
 import xarray as xr
@@ -10,11 +9,13 @@ from pydantic import Field
 from pydantic.dataclasses import dataclass
 from tqdm import tqdm
 
-from camcal.src.aperture_cropping import ImageOrienter
-from camcal.src.cam_cal import CamAngleOffset
-from camcal.src.pairing import ImagePair
-from camcal.src.processing import CCS2SCS, Png2NetCDF
-from camcal.src.tools import strip_timezone
+from camcal.aperture_cropping import ImageOrienter
+from camcal.cam_cal import CamAngleOffset
+from camcal.pairing import ImagePair
+from camcal.processing import CCS2SCS, Png2NetCDF
+from camcal.tools import strip_timezone
+
+__all__ = ['ImageProcessingManager']
 
 
 class MissingImagePlaceholder(xr.Dataset):

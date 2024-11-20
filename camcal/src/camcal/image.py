@@ -10,6 +10,8 @@ from dotenv import load_dotenv
 from pydantic import Field, field_validator
 from pydantic.dataclasses import dataclass
 
+__all__ = ['ImageReader']
+
 
 @dataclass
 class ImageReader:

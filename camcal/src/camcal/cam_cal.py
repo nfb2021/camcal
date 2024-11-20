@@ -3,6 +3,8 @@ from pathlib import Path
 import polars as pl
 from pydantic.dataclasses import dataclass
 
+__all__ = ["CamAngleOffset"]
+
 
 @dataclass
 class CamAngleOffset:

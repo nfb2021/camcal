@@ -10,7 +10,9 @@ from pydantic import Field
 from pydantic.dataclasses import dataclass
 from tqdm import tqdm
 
-from camcal.src.camera import CameraLocationInfo
+from camcal.camera import CameraLocationInfo
+
+__all__ = ["PairFactory"]
 
 
 @dataclass

@@ -6,6 +6,8 @@ from astral.sun import sun
 from pydantic.dataclasses import dataclass
 from pytz import timezone
 
+__all__ = ["CameraLocationInfo"]
+
 
 @dataclass
 class CameraLocationInfo:

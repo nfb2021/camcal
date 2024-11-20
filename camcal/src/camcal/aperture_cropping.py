@@ -7,8 +7,10 @@ import numpy as np
 from pydantic import Field
 from pydantic.dataclasses import dataclass
 
-from camcal.src.cam_cal import CamAngleOffset
-from camcal.src.image import ImageReader
+from camcal.cam_cal import CamAngleOffset
+from camcal.image import ImageReader
+
+__all__ = ["ImageOrienter"]
 
 
 @dataclass
