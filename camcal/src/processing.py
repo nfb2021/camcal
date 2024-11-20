@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 from typing import Optional, Union
 
@@ -7,6 +8,8 @@ import numpy as np
 import xarray as xr
 from pydantic import Field, field_validator
 from pydantic.dataclasses import dataclass
+
+from camcal.src.tools import exif_str_to_snake_case
 
 
 @dataclass(config={"arbitrary_types_allowed": True})
@@ -249,7 +252,7 @@ class Png2NetCDF:
             exif_tags = exifread.process_file(image_file)
 
         to_keep = [
-            "EXIF DateTime",
+            # "EXIF DateTime",
             "EXIF Make",
             "EXIF Model",
             "EXIF Software",
@@ -258,7 +261,10 @@ class Png2NetCDF:
             "EXIF SubjectDistance",
         ]
 
-        _img_metadata = {k: exif_tags[k] for k in to_keep if k in exif_tags}
+        _img_metadata = {
+            exif_str_to_snake_case(k): str(exif_tags[k])
+            for k in to_keep if k in exif_tags
+        }
 
         return _img_metadata
 
@@ -661,36 +667,51 @@ class CCS2SCS:
             xr.Dataset
                 Image dataset with metadata added.
         """
-
-        ds.coords["rho"].attrs = {
-            "long_name": "Radial distance",
-            "short_name": "rho",
-            "valid_min": 0,
-            "units": "pixels"
+        # Add metadata to spherical coordinate variables
+        spherical_metadata = {
+            "rho": {
+                "long_name": "Radial distance",
+                "short_name": "rho",
+                "valid_min": 0,
+                "units": "pixels",
+                "description":
+                "Distance from the origin in the Cartesian grid."
+            },
+            "phi": {
+                "long_name":
+                "Azimuth angle",
+                "short_name":
+                "phi",
+                "valid_range": [-180, 180],
+                "units":
+                "degrees",
+                "description":
+                "Angle in the x-y plane measured counterclockwise from the positive x-axis."
+            },
+            "theta": {
+                "long_name":
+                "Polar angle",
+                "short_name":
+                "theta",
+                "valid_range": [0, self.theta_cutoff],
+                "units":
+                "degrees",
+                "description":
+                "Angle measured from the z-axis to the point in spherical coordinates."
+            }
         }
 
-        ds.coords["phi"].attrs = {
-            "long_name": "Azimuth angle",
-            "short_name": "phi",
-            "valid_range": [-180, 180],
-            "units": "degrees"
-        }
+        for coord, attrs in spherical_metadata.items():
+            if coord in ds.coords:
+                ds.coords[coord].attrs.update(attrs)
 
-        ds.coords["theta"].attrs = {
-            "long_name": "Polar angle",
-            "short_name": "theta",
-            "valid_range": [0, self.theta_cutoff],
-            "units": "degrees"
-        }
-
-        # ds.coords["epsilon"].attrs = {
-        #     "long_name": "Elevation angle",
-        #     "short_name": "epsilon",
-        #     "valid_range": [90 - self.theta_cutoff, 90],
-        #     "units": "degrees"
-        # }
-
-        ds.attrs["theta_cutoff"] = self.theta_cutoff
+        # Add global dataset metadata
+        ds.attrs.update({
+            "theta_cutoff":
+            f"{self.theta_cutoff} degrees (based on camera specifications)",
+            "description":
+            "Dataset containing spherical coordinates derived from Cartesian image data."
+        })
 
         return ds
 

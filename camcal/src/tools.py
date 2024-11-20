@@ -1,5 +1,7 @@
+import re
 from dataclasses import dataclass, field
-from typing import Dict
+from datetime import datetime
+from typing import Any, Dict
 
 import numpy as np
 from screeninfo import get_monitors
@@ -30,6 +32,26 @@ def get_resized_img_shape(img: np.ndarray,
     window_height = int(img.shape[0] * scale)
 
     return {'width': window_width, 'height': window_height}
+
+
+def exif_str_to_snake_case(input_string: str) -> str:
+    # Remove the "EXIF" prefix and trim whitespace
+    cleaned_string = input_string.replace("EXIF", "").strip()
+    # Convert to snake case
+    snake_case = re.sub(r'(?<!^)(?=[A-Z])', '_', cleaned_string).lower()
+    return 'exif_' + snake_case
+
+
+def strip_timezone(dt: datetime) -> datetime:
+    """Remove timezone information from a datetime object."""
+    return dt.replace(tzinfo=None)
+
+
+def to_nanosecond_precision(timestamp: Any) -> np.datetime64:
+    """
+    Convert a timestamp to nanosecond precision if it's not already.
+    """
+    return timestamp.astype("datetime64[ns]")
 
 
 if __name__ == '__main__':

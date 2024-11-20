@@ -112,7 +112,7 @@ class ImageOrienter:
 
     def process_image(self) -> np.ndarray:
         """
-        Apply a series of transformations (masking, rotation, cropping) to the image.
+        Apply a series of transformations (masking, rotation, cropping) to the image and return as RGBA PNG.
 
         Returns:
         --------
@@ -124,4 +124,10 @@ class ImageOrienter:
         masked_image = cv2.bitwise_and(img_copy, img_copy, mask=circle_mask)
         rotated_image = self.rotate_image(masked_image)
         cropped_image = self.crop_to_square(rotated_image)
-        return cropped_image
+
+        # Create an RGBA image
+        rgba_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2BGRA)
+        rgba_image[:, :,
+                   3] = self.crop_to_square(circle_mask)  # Set alpha channel
+
+        return rgba_image

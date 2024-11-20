@@ -1,20 +1,22 @@
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import exifread
+import polars as pl
 from natsort import natsorted
 from pydantic import Field
 from pydantic.dataclasses import dataclass
+from tqdm import tqdm
 
 from camcal.src.camera import CameraLocationInfo
 
 
 @dataclass
 class ImagePair:
-    ir: Path
-    vis: Path
+    ir: Optional[Path] = None
+    vis: Optional[Path] = None
 
 
 @dataclass
@@ -67,15 +69,17 @@ class PairFactory:
         # Localize to the timezone specified in CameraLocationInfo
         return self.camera_loc.timezone_obj.localize(date_obj)
 
-    def _extract_datetimes_parallel(
-            self, images: List[Path]) -> Dict[datetime, Path]:
+    def _extract_datetimes_parallel(self, images: List[Path],
+                                    desc: str) -> Dict[datetime, Path]:
         """
-        Extract datetimes from image files in parallel.
+        Extract datetimes from image files in parallel with a progress bar.
 
         Parameters:
         ------------
         images : List[Path]
             List of image file paths.
+        desc : str
+            Description for the progress bar.
 
         Returns:
         ---------
@@ -83,7 +87,13 @@ class PairFactory:
             Dictionary mapping extracted datetimes to their corresponding image paths.
         """
         with ProcessPoolExecutor() as executor:
-            results = list(executor.map(self._extract_datetime, images))
+            # Wrap executor.map with tqdm for progress tracking
+            results = list(
+                tqdm(
+                    executor.map(self._extract_datetime, images),
+                    total=len(images),
+                    desc=desc,
+                ))
         return dict(zip(results, images))
 
     def _filter_to_daylight(
@@ -107,6 +117,8 @@ class PairFactory:
             sun_times = self.camera_loc.get_sun_times(timestamp)
             if sun_times['sunrise'] <= timestamp <= sun_times['sunset']:
                 daylight_pairs[timestamp] = pair
+
+        print(f'Clipping to daylight hours ({sun_times['sunrise']} to {sun_times['sunset']}) active. Retained {len(daylight_pairs)} pairs of originally {len(pairs)}.')
         return daylight_pairs
 
     def create_pairs(self) -> Dict[datetime, ImagePair]:
@@ -119,15 +131,24 @@ class PairFactory:
             A dictionary where keys are timestamps and values are matched image pairs.
         """
         # Extract datetimes for IR and VIS images
-        ir_dict = self._extract_datetimes_parallel(self.ir_imgs)
-        vis_dict = self._extract_datetimes_parallel(self.vis_imgs)
+        ir_dict = self._extract_datetimes_parallel(
+            self.ir_imgs, desc='Extracting IR datetimes')
+        vis_dict = self._extract_datetimes_parallel(
+            self.vis_imgs, desc='Extracting VIS datetimes')
 
-        # Match IR and VIS images by common timestamps
-        common_timestamps = set(ir_dict.keys()) & set(vis_dict.keys())
+        # Get all unique timestamps from both dictionaries
+        all_timestamps = set(ir_dict.keys()).union(set(vis_dict.keys()))
+
+        # Create pairs, allowing for missing images
         pairs = {
-            timestamp: ImagePair(ir=ir_dict[timestamp],
-                                 vis=vis_dict[timestamp])
-            for timestamp in sorted(common_timestamps)
+            timestamp:
+            ImagePair(
+                ir=ir_dict.get(
+                    timestamp),  # Use image from IR if available, else None
+                vis=vis_dict.get(
+                    timestamp)  # Use image from VIS if available, else None
+            )
+            for timestamp in sorted(all_timestamps)
         }
 
         # Optionally filter pairs to daylight hours
@@ -135,3 +156,37 @@ class PairFactory:
             return self._filter_to_daylight(pairs)
 
         return pairs
+
+    @staticmethod
+    def print_pairs(pairs: Dict[datetime, ImagePair]) -> pl.DataFrame:
+        """
+        Print a summary of the image pairs.
+
+        Parameters:
+        ------------
+        pairs : Dict[datetime, ImagePair]
+            Dictionary of image pairs keyed by datetime.
+        """
+        print(f"Found {len(pairs)} image pairs.")
+        times, irs, viss = [], [], []
+        for k, v in pairs.items():
+            time = k.strftime('%Y-%m-%d %H:%M:%S')
+            if not v.ir:
+                ir = None
+            else:
+                ir = str(v.ir.name)
+
+            if not v.vis:
+                vis = None
+            else:
+                vis = str(v.vis.name)
+
+            times.append(time)
+            irs.append(ir)
+            viss.append(vis)
+
+        # print(_dict)
+        df = pl.DataFrame({'Timestamp': times, 'IR': irs, 'VIS': viss})
+
+        print(df)
+        return df
