@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "camcal", from = "camcal/src"}]
 
 [tool.poetry.dependencies]
-python = "^3.13"
+python = "^3.9"
 opencv-python-headless = "^4.10.0.84"
 opencv-contrib-python = "^4.10.0.84"
 pydantic = "^2.0"
